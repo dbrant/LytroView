@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
-using System.Text;
 
 namespace MpoViewer
 {
     public partial class Form1 : Form
     {
+        private List<Image> images = new List<Image>();
+        private string FileName = "";
+
         public Form1(string[] args)
         {
             InitializeComponent();
             Functions.FixDialogFont(this);
             this.Text = Application.ProductName;
-
-            images = new List<Image>();
             
             if (args.Length > 0)
             {
@@ -47,65 +47,14 @@ namespace MpoViewer
             if (files.Length == 0) return;
             OpenLFP(files[0]);
         }
-
-
-        private List<Image> images;
-        private Image stereoImage = null;
-        private string FileName = "";
-
-
+        
         private void OpenLFP(string fileName)
         {
             FileName = fileName;
-            images.Clear();
-
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                byte[] tempBytes = new byte[0x10];
-                using (var f = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-                {
-                    while (f.Position < f.Length)
-                    {
-                        f.Read(tempBytes, 0, tempBytes.Length);
-                        string blockName = Encoding.ASCII.GetString(tempBytes, 1, 3);
-                        UInt32 blockLength = Functions.BigEndian(BitConverter.ToUInt32(tempBytes, 12));
-
-                        if (!blockName.StartsWith("LF"))
-                        {
-                            continue;
-                        }
-                        if (blockLength == 0)
-                        {
-                            continue;
-                        }
-
-                        f.Seek(0x50, SeekOrigin.Current);
-
-                        if (blockLength > 0x100)
-                        {
-                            f.Read(tempBytes, 0, 4);
-                            f.Seek(-4, SeekOrigin.Current);
-
-                            if (tempBytes[0] == 0xff && tempBytes[1] == 0xD8 && tempBytes[2] == 0xFF)
-                            {
-                                byte[] imageBytes = new byte[blockLength];
-                                f.Read(imageBytes, 0, (int) blockLength);
-                                f.Seek(-blockLength, SeekOrigin.Current);
-                                
-                                MemoryStream stream = new MemoryStream(imageBytes, 0, (int) blockLength);
-                                images.Add(new Bitmap(stream));
-                            }
-                        }
-
-                        f.Seek(blockLength, SeekOrigin.Current);
-
-                        if (blockLength % 0x10 > 0)
-                        {
-                            f.Seek(0x10 - (blockLength % 0x10), SeekOrigin.Current);
-                        }
-                    }
-                }
+                images = LytroImage.GetLfpImages(FileName);
                 
                 if (images.Count == 0)
                 {
@@ -114,6 +63,7 @@ namespace MpoViewer
                 }
                 else
                 {
+                    this.Text = fileName;
                     tbImage.Maximum = images.Count - 1;
                     tbImage_Scroll(null, null);
                 }
@@ -130,7 +80,7 @@ namespace MpoViewer
 
         private void mnuSave_Click(object sender, EventArgs e)
         {
-            if (images.Count == 0) return;
+            if (images.Count <= tbImage.Value) return;
             try
             {
                 var saveDlg = new SaveFileDialog();
@@ -142,8 +92,7 @@ namespace MpoViewer
                 saveDlg.InitialDirectory = Path.GetDirectoryName(FileName);
                 saveDlg.FileName = Path.GetFileNameWithoutExtension(FileName) + "_" + (tbImage.Value + 1).ToString() + ".jpg";
                 if (saveDlg.ShowDialog() == DialogResult.Cancel) return;
-
-                //images[cbImage.SelectedIndex].Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+                images[tbImage.Value].Save(saveDlg.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
             catch (Exception ex)
             {
@@ -172,38 +121,4 @@ namespace MpoViewer
             Close();
         }
     }
-
-    public class Functions
-    {
-
-        /// <summary>
-        /// Sets the font of a given control, and all child controls, to
-        /// the current system font, while preserving font styles.
-        /// </summary>
-        /// <param name="c0">Control whose font will be set.</param>
-        public static void FixDialogFont(Control c0)
-        {
-            Font old = c0.Font;
-            c0.Font = new Font(SystemFonts.MessageBoxFont.FontFamily.Name, old.Size, old.Style);
-            if (c0.Controls.Count > 0)
-                foreach (Control c in c0.Controls)
-                    FixDialogFont(c);
-        }
-
-        private static UInt32 conv_endian(UInt32 val)
-        {
-            UInt32 temp = (val & 0x000000FF) << 24;
-            temp |= (val & 0x0000FF00) << 8;
-            temp |= (val & 0x00FF0000) >> 8;
-            temp |= (val & 0xFF000000) >> 24;
-            return (temp);
-        }
-
-        public static UInt32 BigEndian(UInt32 val)
-        {
-            if (!BitConverter.IsLittleEndian) return val;
-            return conv_endian(val);
-        }
-    }
-
 }
