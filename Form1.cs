@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using LytroView.Properties;
 
 namespace MpoViewer
 {
@@ -28,8 +29,8 @@ namespace MpoViewer
             var openDlg = new OpenFileDialog();
             openDlg.DefaultExt = ".lfp";
             openDlg.CheckFileExists = true;
-            openDlg.Title = "Open LFP file...";
-            openDlg.Filter = "LFP Files (*.lfp)|*.lfp|All Files (*.*)|*.*";
+            openDlg.Title = Resources.openDlgTitle;
+            openDlg.Filter = Resources.openDlgFilter;
             openDlg.FilterIndex = 1;
             if (openDlg.ShowDialog() == DialogResult.Cancel) return;
             OpenLFP(openDlg.FileName);
@@ -59,7 +60,7 @@ namespace MpoViewer
                 if (images.Count == 0)
                 {
                     pictureBox.Image = null;
-                    MessageBox.Show(this, "This does not appear to be a valid LFP stacked image.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(this, Resources.errorFileInvalid, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 else
                 {
@@ -86,8 +87,8 @@ namespace MpoViewer
                 var saveDlg = new SaveFileDialog();
                 saveDlg.DefaultExt = ".jpg";
                 saveDlg.OverwritePrompt = true;
-                saveDlg.Title = "Save file...";
-                saveDlg.Filter = "JPG Files (*.jpg)|*.jpg|All Files (*.*)|*.*";
+                saveDlg.Title = Resources.saveDlgTitle;
+                saveDlg.Filter = Resources.saveDlgFilter;
                 saveDlg.FilterIndex = 1;
                 saveDlg.InitialDirectory = Path.GetDirectoryName(FileName);
                 saveDlg.FileName = Path.GetFileNameWithoutExtension(FileName) + "_" + (tbImage.Value + 1).ToString() + ".jpg";
@@ -102,7 +103,7 @@ namespace MpoViewer
         
         private void btnAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, Application.ProductName + "\nCopyright © 2015 by Dmitry Brant\n\nhttp://dmitrybrant.com", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Resources.aboutText, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void tbImage_Scroll(object sender, EventArgs e)

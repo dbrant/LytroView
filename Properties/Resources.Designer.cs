@@ -59,5 +59,60 @@ namespace LytroView.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copyright © 2015 by Dmitry Brant
+        ///http://dmitrybrant.com.
+        /// </summary>
+        internal static string aboutText {
+            get {
+                return ResourceManager.GetString("aboutText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This does not appear to be a valid LFP stacked image..
+        /// </summary>
+        internal static string errorFileInvalid {
+            get {
+                return ResourceManager.GetString("errorFileInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LFP Files (*.lfp)|*.lfp|All Files (*.*)|*.*.
+        /// </summary>
+        internal static string openDlgFilter {
+            get {
+                return ResourceManager.GetString("openDlgFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open LFP file....
+        /// </summary>
+        internal static string openDlgTitle {
+            get {
+                return ResourceManager.GetString("openDlgTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to JPG Files (*.jpg)|*.jpg|All Files (*.*)|*.*.
+        /// </summary>
+        internal static string saveDlgFilter {
+            get {
+                return ResourceManager.GetString("saveDlgFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save file....
+        /// </summary>
+        internal static string saveDlgTitle {
+            get {
+                return ResourceManager.GetString("saveDlgTitle", resourceCulture);
+            }
+        }
     }
 }
